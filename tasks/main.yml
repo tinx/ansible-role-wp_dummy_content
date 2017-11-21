@@ -1,0 +1,10 @@
+---
+- name: Setting up dummy content
+  wp_dummy_content:
+    url: '{{ wp_dummy_content_blog_url }}'
+    username: '{{ wp_dummy_content_username }}'
+    password: '{{ wp_dummy_content_password }}'
+    posts: "{{ wp_dummy_content_posts }}"
+    pages: "{{ wp_dummy_content_pages }}"
+    comments: "{{ wp_dummy_content_comments }}"
+    state: "{{ wp_dummy_content_state }}"

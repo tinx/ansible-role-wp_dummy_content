@@ -1,0 +1,5 @@
+---
+wp_dummy_content_posts: '5-100+'
+wp_dummy_content_pages: '5-100+'
+wp_dummy_content_comments: '5-30+'
+wp_dummy_content_state: 'present'

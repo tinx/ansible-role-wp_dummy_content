@@ -1,0 +1,5 @@
+---
+# handlers file for wp_dummy_test.nginx
+- name: restart nginx
+  service: name=nginx state=restarted
+  listen: "restart nginx service"

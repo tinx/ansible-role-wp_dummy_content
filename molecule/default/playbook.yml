@@ -1,0 +1,16 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  tasks:
+    - name: Insert dummy content into blogs
+      include_role:
+        name: tinx.wp_dummy_content
+      vars:
+        wp_dummy_content_blog_url: "http://{{item.name}}.example.com/"
+        wp_dummy_content_username: "{{item.username}}"
+        wp_dummy_content_password: "{{item.password}}"
+        wp_dummy_content_pages: '5'
+        wp_dummy_content_posts: '17'
+        wp_dummy_content_comments: '6'
+      with_items: "{{ blogs }}"

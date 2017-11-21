@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  author: Andreas Jaekel
+  description: WordPress dummy content creation module and role
+  license: BSD
+  min_ansible_version: 2.4
+  platforms:
+    - name: CentOS
+      versions:
+        - 7.4
+
+  galaxy_tags:
+    - WordPress
+    - testing
+    - dummy
+    - blog
+    - generated
+    - content
+
+dependencies: []

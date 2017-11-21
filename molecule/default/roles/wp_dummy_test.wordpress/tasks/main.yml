@@ -1,0 +1,83 @@
+---
+# Wordpress
+- name: Download WP-CLI
+  get_url:
+    url: https://raw.github.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    dest: /usr/local/bin/wp
+    validate_certs: false
+- name: Set WP-CLI permissions
+  file:
+    path: /usr/local/bin/wp
+    mode: 0755
+- name: Create project folder
+  file:
+    dest: "/var/www/{{wp_domain}}"
+    state: directory
+    owner: www-data
+    group: www-data
+- name: Download WordPress
+  command: wp core download
+  args:
+    chdir: "/var/www/{{wp_domain}}"
+    creates: "/var/www/{{wp_domain}}//wp-settings.php"
+  become: true
+  become_user: www-data
+- name: Set project folder permissions
+  file:
+    dest: "/var/www/{{wp_domain}}"
+    state: directory
+    owner: www-data
+    group: www-data
+    recurse: true
+
+# MySQL setup for WordPress
+- name: Create WordPress MySQL database
+  mysql_db:
+    name: "{{database_name}}"
+    state: present
+    config_file: /root/.my.cnf
+- name: Create WordPress MySQL user
+  mysql_user:
+    name: "{{database_user}}"
+    host: localhost
+    password: "{{database_password}}"
+    priv: "{{database_name}}.*:ALL"
+    config_file: /root/.my.cnf
+    state: present
+
+# Configure WordPress
+- name: Configure WordPress
+  command: wp core config
+           --path="/var/www/{{wp_domain}}"
+           --dbname="{{database_name}}"
+           --dbuser="{{database_user}}"
+           --dbpass="{{database_password}}"
+           --dbprefix="wp_"
+  args:
+    chdir: "/var/www/{{wp_domain}}"
+    creates: "/var/www/{{wp_domain}}/wp-config.php"
+  become: true
+  become_user: www-data
+
+# Populate database
+- name: Does the database exist?
+  command: |
+    mysql -u root
+      {{database_name}} -e "SELECT ID FROM {{database_name}}.wp_users LIMIT 1;"
+  register: db_exist
+  ignore_errors: true
+  changed_when: false
+  environment:
+    MYSQL_HOME: /root
+- name: Install WordPress tables
+  command: wp core install
+           --url="http://{{wp_domain}}/"
+           --title="{{blog_title}}"
+           --admin_user="{{admin_username}}"
+           --admin_password="{{admin_password}}"
+           --admin_email="{{admin_email}}"
+  args:
+    chdir: "/var/www/{{wp_domain}}"
+  when: db_exist.rc > 0
+  become: true
+  become_user: www-data

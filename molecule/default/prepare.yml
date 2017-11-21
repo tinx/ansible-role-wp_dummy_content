@@ -1,0 +1,49 @@
+---
+- name: Prepare
+  hosts: all
+  gather_facts: true
+  become: true
+  roles:
+    - role: wp_dummy_test.mysql
+    - role: wp_dummy_test.php
+  tasks:
+    - name: Install python for Ansible
+      # yamllint disable-line rule:line-length
+      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+      become: true
+      changed_when: false
+    # Create virtual hosts
+    - name: Update /etc/hosts
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '.*{{ item.name }}.example.com$'
+        line: "127.0.0.1 {{item.name}}.example.com"
+        state: present
+      with_items: "{{ blogs }}"
+    - name: Configure nginx virtual hosts
+      include_role:
+        name: wp_dummy_test.nginx
+      vars:
+        wp_domain: "{{item.name}}.example.com"
+      with_items: "{{ blogs }}"
+    # Install WordPress
+    - name: Configure WordPress
+      include_role:
+        name: wp_dummy_test.wordpress
+      vars:
+        wp_domain: "{{item.name}}.example.com"
+        database_name: "{{item.name}}"
+        database_user: "{{item.name}}"
+        database_password: "unittest"
+        admin_username: "admin"
+        admin_password: "admin"
+        admin_email: "admin@example.com"
+        blog_title: "La Anne de Sible"
+      with_items: "{{ blogs }}"
+    - name: make sure nginx knows about the sites
+      meta: flush_handlers
+    - name: copy test script to instance
+      copy:
+        src: verify.py
+        dest: /tmp/
+        mode: 0755

@@ -1,0 +1,22 @@
+---
+# Install nginx
+- name: Install nginx
+  apt: name=nginx state=installed
+- name: Start nginx
+  service: name=nginx state=started
+- name: Create nginx default config
+  template:
+    src: default
+    dest: "/etc/nginx/sites-available/default"
+  notify: restart nginx service
+- name: Create nginx site config
+  template:
+    src: site
+    dest: "/etc/nginx/sites-available/{{wp_domain}}"
+  notify: restart nginx service
+- name: Enable site
+  file:
+    src: "/etc/nginx/sites-available/{{wp_domain}}"
+    dest: "/etc/nginx/sites-enabled/{{wp_domain}}"
+    state: link
+  notify: restart nginx service
