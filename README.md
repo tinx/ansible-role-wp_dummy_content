@@ -6,7 +6,7 @@ Provides generated dummy content for WordPress blogs.
 
 There are no special requirements for the role itself.
 
-The test playbook for this role depend on WP-CLI for setting up the test
+The test playbook for this role depends on WP-CLI for setting up the test
 environment. WP-CLI will be downloaded during the test run. The tests
 also require testinfra, Vagrant and Virtualbox.
 
@@ -71,8 +71,7 @@ To create some content using the default settings use:
 
 ## Testing
 
-Kitchen tests are provided in the 'test/' directory. Naturally, they require
-additional dependencies.
+Molecule tests are provided. Naturally, they require additional dependencies.
 
 ## Contributing
 
